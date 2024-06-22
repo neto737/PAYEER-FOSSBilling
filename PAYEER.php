@@ -35,14 +35,14 @@ class Payment_Adapter_PAYEER implements \FOSSBilling\InjectionAwareInterface
                 'height' => '50px',
                 'width'  => '50px',
             ],
-            'form'              => [
-                'merchant_id'   => [
+            'form'                       => [
+                'merchant_id' => [
                     'text',
                     [
                         'label' => 'Merchant ID:',
                     ],
                 ],
-                'secret_key'    => [
+                'secret_key'  => [
                     'text',
                     [
                         'label' => 'Secret key:',
@@ -86,7 +86,7 @@ class Payment_Adapter_PAYEER implements \FOSSBilling\InjectionAwareInterface
             $sign_hash = strtoupper(hash('sha256', implode(':', $arHash)));
 
             if ($this->isIpnDuplicate($post)) {
-                echo $post['m_orderid'] . '|success';
+                echo $post['m_orderid'].'|success';
                 return;
             }
 
@@ -102,10 +102,10 @@ class Payment_Adapter_PAYEER implements \FOSSBilling\InjectionAwareInterface
                 $transaction->currency = $post['m_curr'];
 
                 $bd = [
-                    'amount' => $transaction->amount,
-                    'description' => 'PAYEER transaction ' . $post['m_operation_id'],
-                    'type' => 'transaction',
-                    'rel_id' => $transaction->id,
+                    'amount'      => $transaction->amount,
+                    'description' => 'PAYEER transaction '.$post['m_operation_id'],
+                    'type'        => 'transaction',
+                    'rel_id'      => $transaction->id,
                 ];
 
                 $client = $this->di['db']->getExistingModelById('Client', $invoice->client_id);
@@ -123,11 +123,11 @@ class Payment_Adapter_PAYEER implements \FOSSBilling\InjectionAwareInterface
                 $transaction->updated_at = date('Y-m-d H:i:s');
                 $this->di['db']->store($transaction);
 
-                echo $post['m_orderid'] . '|success';
+                echo $post['m_orderid'].'|success';
                 return;
             }
 
-            echo $post['m_orderid'] . '|error';
+            echo $post['m_orderid'].'|error';
             return;
         }
     }
@@ -143,7 +143,7 @@ class Payment_Adapter_PAYEER implements \FOSSBilling\InjectionAwareInterface
         $payeer['m_orderid'] = $invoice->id;
         $payeer['m_amount'] = $invoiceService->getTotalWithTax($invoice);
         $payeer['m_curr'] = 'USD';
-        $payeer['m_desc'] = base64_encode('Order #' . $invoice->serie . sprintf('%0' . $invoice_number_padding . 's', $invoice->nr));
+        $payeer['m_desc'] = base64_encode('Order #'.$invoice->serie.sprintf('%0'.$invoice_number_padding.'s', $invoice->nr));
         $payeer['m_key'] = $this->config['secret_key'];
 
         $arHash = [
@@ -163,27 +163,18 @@ class Payment_Adapter_PAYEER implements \FOSSBilling\InjectionAwareInterface
 
         $url = sprintf('https://payeer.com/merchant/?%s', http_build_query($payeer));
 
-        return '<script type="text/javascript">window.location = "' . $url . '";</script>';
+        return '<script type="text/javascript">window.location = "'.$url.'";</script>';
     }
 
     public function isIpnDuplicate(array $ipn): bool
     {
-        $sql = 'SELECT id
-                FROM transaction
-                WHERE txn_id = :transaction_id
-                  AND amount = :transaction_amount
-                LIMIT 2';
-
-        $bindings = [
-            ':transaction_id' => $ipn['m_operation_id'],
-            ':transaction_amount' => $ipn['m_amount'],
-        ];
-
-        $rows = $this->di['db']->getAll($sql, $bindings);
-        if ((is_countable($rows) ? count($rows) : 0) > 1) {
-            return true;
+        $transaction = $this->di['db']->findOne('Transaction', 'txn_id = :txn_id and amount = :amount', [
+            ':txn_id' => $ipn['m_operation_id'],
+            ':amount' => $ipn['m_amount']
+        ]);
+        if ($transaction) {
+            return $transaction->status == $ipn['m_status'];
         }
-
         return false;
     }
 }
