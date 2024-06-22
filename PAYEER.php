@@ -115,8 +115,9 @@ class Payment_Adapter_PAYEER implements \FOSSBilling\InjectionAwareInterface
                 $invoiceService = $this->di['mod_service']('Invoice');
                 if ($transaction->invoice_id) {
                     $invoiceService->payInvoiceWithCredits($invoice);
+                } else {
+                    $invoiceService->doBatchPayWithCredits(['client_id' => $client->id]);
                 }
-                $invoiceService->doBatchPayWithCredits(['client_id' => $client->id]);
 
                 $transaction->status = $post['m_status'];
                 $transaction->ipn = json_encode($post);
