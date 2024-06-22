@@ -20,7 +20,7 @@ class Payment_Adapter_PAYEER implements \FOSSBilling\InjectionAwareInterface
         $this->config = $config;
         foreach (['merchant_id', 'secret_key'] as $key) {
             if (!isset($this->config[$key])) {
-                throw new \Payment_Exception('The ":pay_gateway" payment gateway is not fully configured. Please configure the :missing', [':pay_gateway' => 'BTCPay', ':missing' => $key], 4001);
+                throw new \Payment_Exception('The ":pay_gateway" payment gateway is not fully configured. Please configure the :missing', [':pay_gateway' => 'PAYEER', ':missing' => $key], 4001);
             }
         }
     }
