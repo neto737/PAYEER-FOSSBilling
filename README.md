@@ -3,7 +3,11 @@ Quickly and easily integrate [PAYEER](https://payeer.com) into your [FOSSBilling
 
 ## Installation
 
-### Manual installation
+### 1). Extension directory
+
+The easiest way to install this extension is by using the [FOSSBilling extension directory](https://extensions.fossbilling.org/extension/PAYEER).
+
+### 2). Manual installation
 1. Download the latest release from the [releases](https://github.com/neto737/PAYEER-FOSSBilling/releases/latest)
 2. Create a new folder named `PAYEER` in the `/library/Payment/Adapter` directory of your FOSSBilling installation
 3. Extract the archive you've downloaded in the first step into the new directory
